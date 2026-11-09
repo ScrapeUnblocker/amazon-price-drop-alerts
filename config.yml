@@ -1,0 +1,43 @@
+# amazon-price-drop-alerts - the only file you need to edit.
+# Secrets (API key, webhook URLs, bot token) never go here: they come from repository
+# secrets in GitHub Actions, or from environment variables / a .env file locally.
+
+# The products to watch. Give an `asin` (plus `marketplace`, default amazon.com) or paste
+# a full product `url`. Every item is one API request per run.
+watchlist:
+  - asin: B09XS7JWHH
+    name: Sony WH-1000XM5 headphones   # optional: shorter label for the message
+    target_price: 179                  # optional: alert when the price is at or below this
+
+  - asin: B0CFPJYX7P
+    name: Kindle Paperwhite 16GB (2024)
+    target_price: 149
+
+  - asin: B09B8V1LZ3
+    name: Echo Dot
+    min_drop_percent: 20               # optional: per-item override of rules.min_drop_percent
+
+  # Any of the 20 regional marketplaces works; prices come back in the local currency.
+  # - url: https://www.amazon.co.uk/dp/B0XXXXXXXX
+  # - asin: B0XXXXXXXX
+  #   marketplace: amazon.de
+  #   back_in_stock: false             # optional: per-item override of rules.back_in_stock
+
+rules:
+  # Alert when the price is at least this many percent below its recent median.
+  min_drop_percent: 10
+  # How many days of daily prices the median looks back over.
+  median_window_days: 30
+  # Alert when an item that showed no price on 2 checks in a row has a price again.
+  back_in_stock: true
+
+# Where alerts go. A destination is used when its secret is set and skipped otherwise:
+#   slack    -> SLACK_WEBHOOK_URL
+#   discord  -> DISCORD_WEBHOOK_URL
+#   telegram -> TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID
+#   webhook  -> ALERT_WEBHOOK_URL (JSON POST: Zapier, Make, n8n, your own endpoint)
+destinations: [slack, discord, telegram, webhook]
+
+# Price history and "already alerted" markers. The workflow commits this file back to
+# the repo after each run so the next run knows what you have already been told.
+state_file: state/prices.json
